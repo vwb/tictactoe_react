@@ -1,0 +1,26 @@
+@import url("board.css");
+
+/* STYLE RESET */
+
+html, body, div {
+	padding: 0;
+	margin: 0;
+	font: inherit;
+	color: inherit;
+	border: 0;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.center {
+	margin: 0 auto;
+	text-align: center;
+}
+
+.group:after {
+	content: "";
+	display: block;
+	clear: both;
+}
