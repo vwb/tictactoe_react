@@ -8,15 +8,15 @@ var Board = React.createClass({
 
 	getInitialState: function(){
 		return {
-			board: BoardStore.fetchBoard(),
-			currentMark: BoardStore.fetchMark(),
-			gameState: BoardStore.fetchGameState()
+			board: BoardStore.fetchBoard(this.props.ind),
+			currentMark: BoardStore.fetchMark(this.props.ind),
+			gameState: BoardStore.fetchGameState(this.props.ind)
 		}
 	},
 
 	componentDidMount: function(){
 		this.boardToke = BoardStore.addListener(this._onChange);
-		BoardActions.newGame();
+		BoardActions.newGame(this.props.ind);
 	},
 
 	componentWillUnmount: function(){
@@ -25,16 +25,39 @@ var Board = React.createClass({
 
 	_onChange: function(){
 		this.setState({
-			board: BoardStore.fetchBoard(),
-			currentMark: BoardStore.fetchMark(),
-			gameState: BoardStore.fetchGameState()
+			board: BoardStore.fetchBoard(this.props.ind),
+			currentMark: BoardStore.fetchMark(this.props.ind),
+			gameState: BoardStore.fetchGameState(this.props.ind)
 		})
 	},
 
 	gridClick: function(pos){
 		if (!this.state.gameState){
-			BoardActions.placeMark(this.state.currentMark, pos, this.state.board)
+			BoardActions.placeMark(this.state.currentMark, pos, this.props.ind)
 		}
+	},
+
+	determineClass: function(pos){
+		var cName = "grid-item";
+		if (this.state.gameState){
+			if (this.state.gameState.seq && this.includes(pos)){
+				cName += " winner"
+			} else {
+				cName += " loser"
+			}
+		} 
+
+		return cName;
+	},
+
+	includes: function(pos){
+		var seq = this.state.gameState.seq
+		for (var i = 0; i < seq.length; i++) {
+			if (JSON.stringify(seq[i]) === JSON.stringify(pos)){
+				return true
+			}
+		}
+		return false
 	},
 
 	generateGridItems: function(){
@@ -44,11 +67,19 @@ var Board = React.createClass({
 		for (var i = 0; i < 3; i++){
 			for (var j = 0; j < 3; j++){
 
-				if (this.state.board.length > 0){
+				if (this.state.board){
 					var val = this.state.board[i][j];
 				}
 
-				items.push(<GridItem key={key} pos={[i,j]} gridClick={this.gridClick} val={val}/>)
+				var cName = this.determineClass([i,j]);
+
+				items.push(<GridItem 
+											key={key} 
+											pos={[i,j]} 
+											gridClick={this.gridClick} 
+											val={val}
+											cName={cName}/>)
+
 				key++;
 
 			}
@@ -58,7 +89,7 @@ var Board = React.createClass({
 	},
 
 	handleNewGame: function(){
-		BoardActions.newGame();
+		BoardActions.newGame(this.props.ind);
 	},
 
 	handleGameEnd: function(){
@@ -83,12 +114,12 @@ var Board = React.createClass({
 
 	render: function() {
 		return (
-			<div className="board-wrapper">
-				{this.handleGameEnd()}
+			<div className="board-container">
 				<div className="board group">
 					<span className="board-helper"/>
 					{this.generateGridItems()}
 				</div>
+				{this.handleGameEnd()}
 			</div>
 		);
 	}

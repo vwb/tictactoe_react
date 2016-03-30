@@ -1,14 +1,14 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var Board = require('./components/board');
+var GameView = require('./components/game_view');
 
 
 var MyComponent = React.createClass({
   render: function () {
     return(
-      <div>
+      <div className="wrapper">
       	<h1 className="center"> Tic Tac Toe </h1>
-      	<Board/>
+      	<GameView />
       </div>
     );
   }

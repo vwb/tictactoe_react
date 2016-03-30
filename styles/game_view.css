@@ -1,0 +1,17 @@
+.winner {
+	color: #07DB57;
+	transition: 0.25s;
+}
+
+.loser {
+	color: #8D8D8D;
+	transition: 0.25s;
+}
+
+.board-wrapper .board-container {
+	border-top: 1px solid #E1E1E1;
+}
+
+.board-wrapper .board-container:first-child{
+	border: 0;
+}

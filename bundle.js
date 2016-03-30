@@ -46,7 +46,7 @@
 
 	var React = __webpack_require__(1);
 	var ReactDOM = __webpack_require__(158);
-	var Board = __webpack_require__(159);
+	var GameView = __webpack_require__(159);
 	
 	var MyComponent = React.createClass({
 	  displayName: 'MyComponent',
@@ -54,13 +54,13 @@
 	  render: function () {
 	    return React.createElement(
 	      'div',
-	      null,
+	      { className: 'wrapper' },
 	      React.createElement(
 	        'h1',
 	        { className: 'center' },
 	        ' Tic Tac Toe '
 	      ),
-	      React.createElement(Board, null)
+	      React.createElement(GameView, null)
 	    );
 	  }
 	});
@@ -19679,10 +19679,62 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-	var GridItem = __webpack_require__(160);
-	var BoardStore = __webpack_require__(162);
-	var BoardActions = __webpack_require__(184);
-	var GameLogic = __webpack_require__(161);
+	var Board = __webpack_require__(160);
+	
+	var GameView = React.createClass({
+		displayName: "GameView",
+	
+		getInitialState: function () {
+			return {
+				boardCount: 1
+			};
+		},
+	
+		generateBoards: function () {
+			var result = [];
+	
+			for (var i = 0; i < this.state.boardCount; i++) {
+				result.push(React.createElement(Board, { key: i, ind: i }));
+			}
+	
+			return result;
+		},
+	
+		handleAddBoard: function (e) {
+			e.preventDefault();
+			var numBoards = this.state.boardCount + 1;
+			this.setState({ boardCount: numBoards });
+		},
+	
+		render: function () {
+			return React.createElement(
+				"div",
+				{ className: "game-view wrapper" },
+				React.createElement(
+					"div",
+					{ className: "button-wrapper" },
+					React.createElement("i", { onClick: this.handleAddBoard, className: "fa fa-plus" })
+				),
+				React.createElement(
+					"div",
+					{ className: "board-wrapper" },
+					this.generateBoards()
+				)
+			);
+		}
+	});
+	
+	module.exports = GameView;
+
+/***/ },
+/* 160 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	var GridItem = __webpack_require__(161);
+	var BoardStore = __webpack_require__(163);
+	var BoardActions = __webpack_require__(186);
+	var GameLogic = __webpack_require__(162);
 	
 	var Board = React.createClass({
 		displayName: 'Board',
@@ -19690,15 +19742,15 @@
 	
 		getInitialState: function () {
 			return {
-				board: BoardStore.fetchBoard(),
-				currentMark: BoardStore.fetchMark(),
-				gameState: BoardStore.fetchGameState()
+				board: BoardStore.fetchBoard(this.props.ind),
+				currentMark: BoardStore.fetchMark(this.props.ind),
+				gameState: BoardStore.fetchGameState(this.props.ind)
 			};
 		},
 	
 		componentDidMount: function () {
 			this.boardToke = BoardStore.addListener(this._onChange);
-			BoardActions.newGame();
+			BoardActions.newGame(this.props.ind);
 		},
 	
 		componentWillUnmount: function () {
@@ -19707,16 +19759,39 @@
 	
 		_onChange: function () {
 			this.setState({
-				board: BoardStore.fetchBoard(),
-				currentMark: BoardStore.fetchMark(),
-				gameState: BoardStore.fetchGameState()
+				board: BoardStore.fetchBoard(this.props.ind),
+				currentMark: BoardStore.fetchMark(this.props.ind),
+				gameState: BoardStore.fetchGameState(this.props.ind)
 			});
 		},
 	
 		gridClick: function (pos) {
 			if (!this.state.gameState) {
-				BoardActions.placeMark(this.state.currentMark, pos, this.state.board);
+				BoardActions.placeMark(this.state.currentMark, pos, this.props.ind);
 			}
+		},
+	
+		determineClass: function (pos) {
+			var cName = "grid-item";
+			if (this.state.gameState) {
+				if (this.state.gameState.seq && this.includes(pos)) {
+					cName += " winner";
+				} else {
+					cName += " loser";
+				}
+			}
+	
+			return cName;
+		},
+	
+		includes: function (pos) {
+			var seq = this.state.gameState.seq;
+			for (var i = 0; i < seq.length; i++) {
+				if (JSON.stringify(seq[i]) === JSON.stringify(pos)) {
+					return true;
+				}
+			}
+			return false;
 		},
 	
 		generateGridItems: function () {
@@ -19726,11 +19801,19 @@
 			for (var i = 0; i < 3; i++) {
 				for (var j = 0; j < 3; j++) {
 	
-					if (this.state.board.length > 0) {
+					if (this.state.board) {
 						var val = this.state.board[i][j];
 					}
 	
-					items.push(React.createElement(GridItem, { key: key, pos: [i, j], gridClick: this.gridClick, val: val }));
+					var cName = this.determineClass([i, j]);
+	
+					items.push(React.createElement(GridItem, {
+						key: key,
+						pos: [i, j],
+						gridClick: this.gridClick,
+						val: val,
+						cName: cName }));
+	
 					key++;
 				}
 			}
@@ -19739,7 +19822,7 @@
 		},
 	
 		handleNewGame: function () {
-			BoardActions.newGame();
+			BoardActions.newGame(this.props.ind);
 		},
 	
 		handleGameEnd: function () {
@@ -19775,14 +19858,14 @@
 		render: function () {
 			return React.createElement(
 				'div',
-				{ className: 'board-wrapper' },
-				this.handleGameEnd(),
+				{ className: 'board-container' },
 				React.createElement(
 					'div',
 					{ className: 'board group' },
 					React.createElement('span', { className: 'board-helper' }),
 					this.generateGridItems()
-				)
+				),
+				this.handleGameEnd()
 			);
 		}
 	});
@@ -19790,11 +19873,11 @@
 	module.exports = Board;
 
 /***/ },
-/* 160 */
+/* 161 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var React = __webpack_require__(1);
-	var GameLogic = __webpack_require__(161);
+	var GameLogic = __webpack_require__(162);
 	
 	var GridItem = React.createClass({
 		displayName: 'GridItem',
@@ -19817,7 +19900,7 @@
 		render: function () {
 			return React.createElement(
 				'div',
-				{ className: 'grid-item', onClick: this.handleClick },
+				{ className: this.props.cName, onClick: this.handleClick },
 				React.createElement(
 					'div',
 					{ className: 'img-wrapper center' },
@@ -19830,7 +19913,7 @@
 	module.exports = GridItem;
 
 /***/ },
-/* 161 */
+/* 162 */
 /***/ function(module, exports) {
 
 	var GameLogic = {
@@ -19912,90 +19995,95 @@
 	module.exports = GameLogic;
 
 /***/ },
-/* 162 */
+/* 163 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var AppDispatcher = __webpack_require__(163);
-	var Store = __webpack_require__(167).Store;
+	var AppDispatcher = __webpack_require__(164);
+	var Store = __webpack_require__(168).Store;
 	var BoardConstants = __webpack_require__(185);
-	var GameLogic = __webpack_require__(161);
+	var GameLogic = __webpack_require__(162);
 	
 	var BoardStore = new Store(AppDispatcher);
 	
-	_board = [];
-	_currentMark = "x";
-	_gameState = false;
+	_boards = {};
 	
-	BoardStore.fetchBoard = function () {
-		return _board;
+	BoardStore.fetchBoard = function (id) {
+		if (_boards[id]) {
+			return _boards[id].board;
+		}
 	};
 	
-	BoardStore.fetchMark = function () {
-		return _currentMark;
+	BoardStore.fetchMark = function (id) {
+		if (_boards[id]) {
+			return _boards[id].mark;
+		}
 	};
 	
-	BoardStore.fetchGameState = function () {
-		return _gameState;
+	BoardStore.fetchGameState = function (id) {
+		if (_boards[id]) {
+			return _boards[id].state;
+		}
 	};
 	
 	BoardStore.__onDispatch = function (payload) {
 		switch (payload.actionType) {
 			case BoardConstants.NEW_GAME:
-				resetGame();
+				resetGame(payload.ind);
 				BoardStore.__emitChange();
 				break;
 			case BoardConstants.PLACE_MARK:
-				placeMark(payload.mark, payload.pos, payload.board);
+				placeMark(payload.mark, payload.pos, payload.ind);
 				BoardStore.__emitChange();
 				break;
 		}
 	};
 	
-	function resetGame() {
-		_gameState = false;
-		_currentMark = "x";
-		_board = [];
+	function resetGame(ind) {
+		_boards[ind] = {};
+		_boards[ind].board = [];
+		_boards[ind].mark = "x";
+		_boards[ind].state = false;
+	
+		var board = _boards[ind].board;
 	
 		for (var i = 0; i < 3; i++) {
-			_board.push([]);
+			board.push([]);
 			for (var j = 0; j < 3; j++) {
-				_board[i].push(null);
+				board[i].push(null);
 			}
 		}
 	};
 	
-	function placeMark(mark, pos, board) {
+	function placeMark(mark, pos, ind) {
+		var board = _boards[ind].board;
 	
 		if (GameLogic.isValidPos(pos) && GameLogic.emptyPos(pos, board)) {
-			_board[pos[0]][pos[1]] = mark;
-			toggleMark();
+			board[pos[0]][pos[1]] = mark;
+			toggleMark(ind);
 		}
 	
-		var result = GameLogic.isOver(_board);
+		var result = GameLogic.isOver(board);
 		if (result) {
-			_gameState = result;
+			_boards[ind].state = result;
 		}
 	};
 	
-	function toggleMark() {
-		_currentMark = _currentMark === "x" ? "o" : "x";
+	function toggleMark(ind) {
+		var board = _boards[ind];
+		board.mark = board.mark === "x" ? "o" : "x";
 	};
-	
-	function gameEnd(result) {
-		_gameState = result;
-	}
 	
 	module.exports = BoardStore;
 
 /***/ },
-/* 163 */
+/* 164 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Dispatcher = __webpack_require__(164).Dispatcher;
+	var Dispatcher = __webpack_require__(165).Dispatcher;
 	module.exports = new Dispatcher();
 
 /***/ },
-/* 164 */
+/* 165 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20007,11 +20095,11 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 	
-	module.exports.Dispatcher = __webpack_require__(165);
+	module.exports.Dispatcher = __webpack_require__(166);
 
 
 /***/ },
-/* 165 */
+/* 166 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20033,7 +20121,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var invariant = __webpack_require__(166);
+	var invariant = __webpack_require__(167);
 	
 	var _prefix = 'ID_';
 	
@@ -20248,7 +20336,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 166 */
+/* 167 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20303,7 +20391,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 167 */
+/* 168 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -20315,15 +20403,15 @@
 	 * of patent rights can be found in the PATENTS file in the same directory.
 	 */
 	
-	module.exports.Container = __webpack_require__(168);
-	module.exports.MapStore = __webpack_require__(171);
-	module.exports.Mixin = __webpack_require__(183);
-	module.exports.ReduceStore = __webpack_require__(172);
-	module.exports.Store = __webpack_require__(173);
+	module.exports.Container = __webpack_require__(169);
+	module.exports.MapStore = __webpack_require__(172);
+	module.exports.Mixin = __webpack_require__(184);
+	module.exports.ReduceStore = __webpack_require__(173);
+	module.exports.Store = __webpack_require__(174);
 
 
 /***/ },
-/* 168 */
+/* 169 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20345,10 +20433,10 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var FluxStoreGroup = __webpack_require__(169);
+	var FluxStoreGroup = __webpack_require__(170);
 	
-	var invariant = __webpack_require__(166);
-	var shallowEqual = __webpack_require__(170);
+	var invariant = __webpack_require__(167);
+	var shallowEqual = __webpack_require__(171);
 	
 	var DEFAULT_OPTIONS = {
 	  pure: true,
@@ -20506,7 +20594,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 169 */
+/* 170 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20525,7 +20613,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var invariant = __webpack_require__(166);
+	var invariant = __webpack_require__(167);
 	
 	/**
 	 * FluxStoreGroup allows you to execute a callback on every dispatch after
@@ -20587,7 +20675,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 170 */
+/* 171 */
 /***/ function(module, exports) {
 
 	/**
@@ -20642,7 +20730,7 @@
 	module.exports = shallowEqual;
 
 /***/ },
-/* 171 */
+/* 172 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20663,10 +20751,10 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var FluxReduceStore = __webpack_require__(172);
-	var Immutable = __webpack_require__(182);
+	var FluxReduceStore = __webpack_require__(173);
+	var Immutable = __webpack_require__(183);
 	
-	var invariant = __webpack_require__(166);
+	var invariant = __webpack_require__(167);
 	
 	/**
 	 * This is a simple store. It allows caching key value pairs. An implementation
@@ -20792,7 +20880,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 172 */
+/* 173 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20813,10 +20901,10 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var FluxStore = __webpack_require__(173);
+	var FluxStore = __webpack_require__(174);
 	
-	var abstractMethod = __webpack_require__(181);
-	var invariant = __webpack_require__(166);
+	var abstractMethod = __webpack_require__(182);
+	var invariant = __webpack_require__(167);
 	
 	var FluxReduceStore = (function (_FluxStore) {
 	  _inherits(FluxReduceStore, _FluxStore);
@@ -20899,7 +20987,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 173 */
+/* 174 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -20918,11 +21006,11 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var _require = __webpack_require__(174);
+	var _require = __webpack_require__(175);
 	
 	var EventEmitter = _require.EventEmitter;
 	
-	var invariant = __webpack_require__(166);
+	var invariant = __webpack_require__(167);
 	
 	/**
 	 * This class should be extended by the stores in your application, like so:
@@ -21082,7 +21170,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 174 */
+/* 175 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21095,14 +21183,14 @@
 	 */
 	
 	var fbemitter = {
-	  EventEmitter: __webpack_require__(175)
+	  EventEmitter: __webpack_require__(176)
 	};
 	
 	module.exports = fbemitter;
 
 
 /***/ },
-/* 175 */
+/* 176 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21121,11 +21209,11 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var EmitterSubscription = __webpack_require__(176);
-	var EventSubscriptionVendor = __webpack_require__(178);
+	var EmitterSubscription = __webpack_require__(177);
+	var EventSubscriptionVendor = __webpack_require__(179);
 	
-	var emptyFunction = __webpack_require__(180);
-	var invariant = __webpack_require__(179);
+	var emptyFunction = __webpack_require__(181);
+	var invariant = __webpack_require__(180);
 	
 	/**
 	 * @class BaseEventEmitter
@@ -21299,7 +21387,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 176 */
+/* 177 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -21320,7 +21408,7 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
-	var EventSubscription = __webpack_require__(177);
+	var EventSubscription = __webpack_require__(178);
 	
 	/**
 	 * EmitterSubscription represents a subscription with listener and context data.
@@ -21352,7 +21440,7 @@
 	module.exports = EmitterSubscription;
 
 /***/ },
-/* 177 */
+/* 178 */
 /***/ function(module, exports) {
 
 	/**
@@ -21406,7 +21494,7 @@
 	module.exports = EventSubscription;
 
 /***/ },
-/* 178 */
+/* 179 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21425,7 +21513,7 @@
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 	
-	var invariant = __webpack_require__(179);
+	var invariant = __webpack_require__(180);
 	
 	/**
 	 * EventSubscriptionVendor stores a set of EventSubscriptions that are
@@ -21515,7 +21603,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 179 */
+/* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21570,7 +21658,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 180 */
+/* 181 */
 /***/ function(module, exports) {
 
 	/**
@@ -21612,7 +21700,7 @@
 	module.exports = emptyFunction;
 
 /***/ },
-/* 181 */
+/* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -21629,7 +21717,7 @@
 	
 	'use strict';
 	
-	var invariant = __webpack_require__(166);
+	var invariant = __webpack_require__(167);
 	
 	function abstractMethod(className, methodName) {
 	   true ? process.env.NODE_ENV !== 'production' ? invariant(false, 'Subclasses of %s must override %s() with their own implementation.', className, methodName) : invariant(false) : undefined;
@@ -21639,7 +21727,7 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 182 */
+/* 183 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -26626,7 +26714,7 @@
 	}));
 
 /***/ },
-/* 183 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -26643,9 +26731,9 @@
 	
 	'use strict';
 	
-	var FluxStoreGroup = __webpack_require__(169);
+	var FluxStoreGroup = __webpack_require__(170);
 	
-	var invariant = __webpack_require__(166);
+	var invariant = __webpack_require__(167);
 	
 	/**
 	 * `FluxContainer` should be preferred over this mixin, but it requires using
@@ -26749,35 +26837,6 @@
 	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ },
-/* 184 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var AppDispatcher = __webpack_require__(163);
-	var BoardConstants = __webpack_require__(185);
-	var GameLogic = __webpack_require__(161);
-	
-	var BoardActions = {
-		newGame: function () {
-			AppDispatcher.dispatch({
-				actionType: BoardConstants.NEW_GAME
-			});
-		},
-	
-		placeMark: function (mark, pos, board) {
-	
-			AppDispatcher.dispatch({
-				actionType: BoardConstants.PLACE_MARK,
-				mark: mark,
-				pos: pos,
-				board: board
-	
-			});
-		}
-	};
-	
-	module.exports = BoardActions;
-
-/***/ },
 /* 185 */
 /***/ function(module, exports) {
 
@@ -26785,6 +26844,36 @@
 		NEW_GAME: "NEW_GAME",
 		PLACE_MARK: "PLACE_MARK"
 	};
+
+/***/ },
+/* 186 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var AppDispatcher = __webpack_require__(164);
+	var BoardConstants = __webpack_require__(185);
+	var GameLogic = __webpack_require__(162);
+	
+	var BoardActions = {
+		newGame: function (id) {
+			AppDispatcher.dispatch({
+				actionType: BoardConstants.NEW_GAME,
+				ind: id
+			});
+		},
+	
+		placeMark: function (mark, pos, ind) {
+	
+			AppDispatcher.dispatch({
+				actionType: BoardConstants.PLACE_MARK,
+				mark: mark,
+				pos: pos,
+				ind: ind
+	
+			});
+		}
+	};
+	
+	module.exports = BoardActions;
 
 /***/ }
 /******/ ]);

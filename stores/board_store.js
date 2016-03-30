@@ -5,69 +5,75 @@ var GameLogic = require('../util/game_logic');
 
 var BoardStore = new Store(AppDispatcher);
 
+_boards = {};
 
-_board = [];
-_currentMark = "x";
-_gameState = false;
-
-BoardStore.fetchBoard = function(){
-	return _board
+BoardStore.fetchBoard = function(id){
+	if (_boards[id]){
+		return _boards[id].board
+	}
 };
 
-BoardStore.fetchMark = function(){
-	return _currentMark;
+BoardStore.fetchMark = function(id){
+	if (_boards[id]){
+		return _boards[id].mark
+	}
 };
 
-BoardStore.fetchGameState = function(){
-	return _gameState;
+BoardStore.fetchGameState = function(id){
+	if (_boards[id]){
+		return _boards[id].state;
+	}
 };
 
 BoardStore.__onDispatch = function(payload){
 	switch (payload.actionType){
 		case BoardConstants.NEW_GAME:
-			resetGame();
+			resetGame(payload.ind);
 			BoardStore.__emitChange();
 			break;
 		case BoardConstants.PLACE_MARK:
-			placeMark(payload.mark, payload.pos, payload.board);
+			placeMark(payload.mark, payload.pos, payload.ind);
 			BoardStore.__emitChange();
 			break;
 	}
 };
 
-function resetGame(){
-	_gameState = false;
-	_currentMark = "x";
-	_board = [];
+function resetGame(ind){
+	_boards[ind] = {};
+	_boards[ind].board = [];
+	_boards[ind].mark = "x";
+	_boards[ind].state = false;
+
+	var board = _boards[ind].board
 
 	for (var i=0; i < 3; i++){
-		_board.push([])
+		board.push([])
 		for (var j=0; j < 3; j++){
-			_board[i].push(null)
+			board[i].push(null)
 		}
 	}
 };
 
-function placeMark(mark, pos, board){
+function placeMark(mark, pos, ind){
+	var board = _boards[ind].board;
 
 	if (GameLogic.isValidPos(pos) && GameLogic.emptyPos(pos, board)){
-		_board[pos[0]][pos[1]] = mark;
-		toggleMark();
+		board[pos[0]][pos[1]] = mark;
+		toggleMark(ind);
+
 	}
 
-	var result = GameLogic.isOver(_board);
+	var result = GameLogic.isOver(board);
 	if (result) {
-		_gameState = result
+		_boards[ind].state = result;
 	}
 
 };
 
-function toggleMark(){
-	_currentMark = _currentMark === "x" ? "o" : "x";
+function toggleMark(ind){
+	var board = _boards[ind]
+	board.mark = board.mark === "x" ? "o" : "x";
 };
 
-function gameEnd(result){
-	_gameState = result;
-}
 
 module.exports = BoardStore;

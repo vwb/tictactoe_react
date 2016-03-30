@@ -1,17 +1,13 @@
-.board-wrapper {
-
-
-}
-
-
 .board {
 	position: relative;
 	margin: 0 auto;
 	padding: 0;
 	width: 50%;
-/*	transform: translateY(25%);
-*/}
+}
 
+.board-container{
+	padding: 10px;
+}
 
 .board-helper {
 	position: absolute;
@@ -35,7 +31,7 @@
 	width: 33.333%;
 	height: 33.333%;
 	float: left;
-	border: 1vw solid black;
+	border: 0.8vw solid black;
 }
 
 .x {
