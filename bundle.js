@@ -19847,7 +19847,7 @@
 	
 				return React.createElement(
 					'div',
-					{ className: 'center alert' },
+					{ className: 'center alert fade-in' },
 					React.createElement(
 						'h2',
 						null,

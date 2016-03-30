@@ -9,6 +9,7 @@
 	width: 45px;
 	border-radius: 50%;
 	background-color: #ED0000;
+	z-index: 2;
 
 }
 

@@ -104,7 +104,7 @@ var Board = React.createClass({
 			}
 
 			return (
-				<div className="center alert">
+				<div className="center alert fade-in">
 					<h2> {text} </h2>
 					<span 
 						onClick={this.handleNewGame}
