@@ -19682,7 +19682,7 @@
 	var Board = __webpack_require__(160);
 	
 	var GameView = React.createClass({
-		displayName: "GameView",
+		displayName: 'GameView',
 	
 		getInitialState: function () {
 			return {
@@ -19706,18 +19706,27 @@
 			this.setState({ boardCount: numBoards });
 		},
 	
+		componentDidUpdate: function (prevProps, prevState) {
+			if (this.state.boardCount != prevState.boardCount) {
+				setTimeout(function () {
+					$('html, body').animate({
+						scrollTop: $(document).height() - $(window).height() }, "slow");
+				}, 251);
+			}
+		},
+	
 		render: function () {
 			return React.createElement(
-				"div",
-				{ className: "game-view wrapper" },
+				'div',
+				{ className: 'game-view wrapper' },
 				React.createElement(
-					"div",
-					{ className: "button-wrapper fav-button-wrapper" },
-					React.createElement("i", { onClick: this.handleAddBoard, className: "fa fa-plus" })
+					'div',
+					{ className: 'button-wrapper fav-button-wrapper' },
+					React.createElement('i', { onClick: this.handleAddBoard, className: 'fa fa-plus' })
 				),
 				React.createElement(
-					"div",
-					{ className: "board-wrapper" },
+					'div',
+					{ className: 'board-wrapper' },
 					this.generateBoards()
 				)
 			);
@@ -19891,9 +19900,9 @@
 	
 		handleSource: function () {
 			if (this.props.val && this.props.val === "x") {
-				return React.createElement('i', { className: 'fa fa-times' });
+				return React.createElement('i', { className: 'grow grow-fast fa fa-times' });
 			} else if (this.props.val && this.props.val === "o") {
-				return React.createElement('i', { className: 'fa fa-circle-o' });
+				return React.createElement('i', { className: 'grow grow-fast fa fa-circle-o' });
 			} else {
 				return React.createElement('i', { className: 'fa fa-circle-o', style: { color: 'white' } });
 			}
@@ -19905,7 +19914,7 @@
 				{ className: this.props.cName, onClick: this.handleClick },
 				React.createElement(
 					'div',
-					{ className: 'img-wrapper center' },
+					{ className: 'img-wrapper center grow' },
 					this.handleSource()
 				)
 			);
