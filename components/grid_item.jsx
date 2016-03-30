@@ -9,9 +9,9 @@ var GridItem = React.createClass({
 
 	handleSource: function(){
 		if (this.props.val && this.props.val === "x"){
-			return (<i className="fa fa-times"></i>)
+			return (<i className="grow grow-fast fa fa-times"></i>)
 		} else if (this.props.val && this.props.val === "o") {
-			return (<i className="fa fa-circle-o"></i>)
+			return (<i className="grow grow-fast fa fa-circle-o"></i>)
 		} else {
 			return (<i className="fa fa-circle-o" style={{color: 'white'}}></i>)
 		}
@@ -20,7 +20,7 @@ var GridItem = React.createClass({
 	render: function() {
 		return (
 			<div className={this.props.cName} onClick={this.handleClick}> 
-				<div className="img-wrapper center">
+				<div className="img-wrapper center grow">
 					{this.handleSource()}
 				</div>
 

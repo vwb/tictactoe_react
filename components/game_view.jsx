@@ -24,6 +24,15 @@ var GameView = React.createClass({
 		this.setState({boardCount: numBoards});
 	},
 
+	componentDidUpdate: function(prevProps, prevState){
+		if (this.state.boardCount != prevState.boardCount){
+			setTimeout(function(){
+				$('html, body').animate({
+					scrollTop: $(document).height()-$(window).height()}, "slow");
+			}, 251);
+		}
+	},
+
 	render: function() {
 		return (
 			<div className="game-view wrapper">
