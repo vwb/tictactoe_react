@@ -27,7 +27,7 @@ var GameView = React.createClass({
 	render: function() {
 		return (
 			<div className="game-view wrapper">
-				<div className="button-wrapper">
+				<div className="button-wrapper fav-button-wrapper">
 					<i onClick={this.handleAddBoard} className="fa fa-plus"></i>
 				</div>
 				<div className="board-wrapper">

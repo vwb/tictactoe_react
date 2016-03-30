@@ -19712,7 +19712,7 @@
 				{ className: "game-view wrapper" },
 				React.createElement(
 					"div",
-					{ className: "button-wrapper" },
+					{ className: "button-wrapper fav-button-wrapper" },
 					React.createElement("i", { onClick: this.handleAddBoard, className: "fa fa-plus" })
 				),
 				React.createElement(
@@ -19838,7 +19838,7 @@
 	
 				return React.createElement(
 					'div',
-					{ className: 'center' },
+					{ className: 'center alert' },
 					React.createElement(
 						'h2',
 						null,
@@ -19847,8 +19847,10 @@
 						' '
 					),
 					React.createElement(
-						'button',
-						{ onClick: this.handleNewGame },
+						'span',
+						{
+							onClick: this.handleNewGame,
+							className: 'button-wrapper new-game-button-wrapper' },
 						' New Game '
 					)
 				);

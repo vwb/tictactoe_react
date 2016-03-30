@@ -104,9 +104,11 @@ var Board = React.createClass({
 			}
 
 			return (
-				<div className="center">
+				<div className="center alert">
 					<h2> {text} </h2>
-					<button onClick={this.handleNewGame}> New Game </button>
+					<span 
+						onClick={this.handleNewGame}
+						className="button-wrapper new-game-button-wrapper"> New Game </span>
 				</div>
 			)
 		}

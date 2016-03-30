@@ -1,4 +1,4 @@
-.button-wrapper {
+.fav-button-wrapper {
 	position: fixed;
 	right: 45px;
 	bottom: 30px;
@@ -9,10 +9,15 @@
 	width: 45px;
 	border-radius: 50%;
 	background-color: #ED0000;
+
+}
+
+.button-wrapper{
 	-webkit-box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.75);
   -moz-box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.75);
 	box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.75);
 	transition: 0.5s;
+	cursor: pointer;
 }
 
 .button-wrapper:hover{
@@ -27,6 +32,13 @@
 	-webkit-box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.75);
   -moz-box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.75);
 	box-shadow: 1px 1px 1px 0px rgba(0,0,0,0.75);
+}
+
+.new-game-button-wrapper {
+	background-color: #2E91B1;
+	color: white;
+	border-radius: 5px;
+	padding: 10px 5px 5px 6px;
 }
 
 .button-wrapper .fa {
