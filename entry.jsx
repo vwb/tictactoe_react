@@ -6,9 +6,11 @@ var GameView = require('./components/game_view');
 var MyComponent = React.createClass({
   render: function () {
     return(
-      <div className="wrapper">
-      	<h1 className="center"> Tic Tac Toe </h1>
-      	<GameView />
+      <div>
+	      <div className="center header">
+	      	<h1> Tic Tac Toe </h1>
+	      </div>
+	      	<GameView />
       </div>
     );
   }

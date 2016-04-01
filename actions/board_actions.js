@@ -19,6 +19,14 @@ var BoardActions = {
 			ind: ind
 
 		});
+	},
+
+	updateGridCount: function(id, size){
+		AppDispatcher.dispatch({
+			actionType: BoardConstants.UPDATE_GRID,
+			size: size,
+			ind: id
+		})
 	}
 };
 

@@ -15,3 +15,11 @@
 .board-wrapper .board-container:first-child{
 	border: 0;
 }
+
+.header {
+	border-bottom: 1px solid #E1E1E1;
+	position: fixed;
+	width: 100%;
+	z-index: 2;
+	background-color: white;
+}

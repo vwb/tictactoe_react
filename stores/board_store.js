@@ -25,6 +25,12 @@ BoardStore.fetchGameState = function(id){
 	}
 };
 
+BoardStore.fetchGridSize = function(id){
+	if (_boards[id]){
+		return _boards[id].size;
+	}
+}
+
 BoardStore.__onDispatch = function(payload){
 	switch (payload.actionType){
 		case BoardConstants.NEW_GAME:
@@ -35,20 +41,36 @@ BoardStore.__onDispatch = function(payload){
 			placeMark(payload.mark, payload.pos, payload.ind);
 			BoardStore.__emitChange();
 			break;
+		case BoardConstants.UPDATE_GRID:
+			resetGrid(payload.ind, payload.size);
+			BoardStore.__emitChange();
+			break;
 	}
 };
 
+function resetGrid(id, size){
+	_boards[id].size = size;
+	resetGame(id);
+}
+
 function resetGame(ind){
-	_boards[ind] = {};
+	if (!_boards[ind]){
+		_boards[ind] = {};
+	}
+
 	_boards[ind].board = [];
 	_boards[ind].mark = "x";
 	_boards[ind].state = false;
 
+	if (!_boards[ind].size){
+		_boards[ind].size = 3
+	}
+
 	var board = _boards[ind].board
 
-	for (var i=0; i < 3; i++){
+	for (var i=0; i < _boards[ind].size; i++){
 		board.push([])
-		for (var j=0; j < 3; j++){
+		for (var j=0; j < _boards[ind].size; j++){
 			board[i].push(null)
 		}
 	}
@@ -57,10 +79,9 @@ function resetGame(ind){
 function placeMark(mark, pos, ind){
 	var board = _boards[ind].board;
 
-	if (GameLogic.isValidPos(pos) && GameLogic.emptyPos(pos, board)){
+	if (GameLogic.isValidPos(pos, board) && GameLogic.emptyPos(pos, board)){
 		board[pos[0]][pos[1]] = mark;
-		toggleMark(ind);
-
+		_toggleMark(ind);
 	}
 
 	var result = GameLogic.isOver(board);
@@ -70,7 +91,7 @@ function placeMark(mark, pos, ind){
 
 };
 
-function toggleMark(ind){
+function _toggleMark(ind){
 	var board = _boards[ind]
 	board.mark = board.mark === "x" ? "o" : "x";
 };
