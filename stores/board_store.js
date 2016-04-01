@@ -8,28 +8,24 @@ var BoardStore = new Store(AppDispatcher);
 _boards = {};
 
 BoardStore.fetchBoard = function(id){
-	if (_boards[id]){
-		return _boards[id].board
-	}
+	if (_boards[id])  {  return _boards[id].board  }
 };
 
 BoardStore.fetchMark = function(id){
-	if (_boards[id]){
-		return _boards[id].mark
-	}
+	if (_boards[id])  {  return _boards[id].mark  }
 };
 
 BoardStore.fetchGameState = function(id){
-	if (_boards[id]){
-		return _boards[id].state;
-	}
+	if (_boards[id])  {  return _boards[id].state  }
 };
 
 BoardStore.fetchGridSize = function(id){
-	if (_boards[id]){
-		return _boards[id].size;
-	}
-}
+	if (_boards[id])  {	 return _boards[id].size  }	
+};
+
+BoardStore.fetchWinCondition = function(id){
+	if (_boards[id])  {  return _boards[id].winCondition  }
+};
 
 BoardStore.__onDispatch = function(payload){
 	switch (payload.actionType){
@@ -45,17 +41,26 @@ BoardStore.__onDispatch = function(payload){
 			resetGrid(payload.ind, payload.size);
 			BoardStore.__emitChange();
 			break;
+		case BoardConstants.UPDATE_WIN_CONDITION:
+			setWinCondition(payload.ind, payload.cond)
+			BoardStore.__emitChange();
+			break;
 	}
 };
 
 function resetGrid(id, size){
 	_boards[id].size = size;
 	resetGame(id);
+};
+
+function setWinCondition(id, amount){
+	_boards[id].winCondition = amount
 }
 
 function resetGame(ind){
 	if (!_boards[ind]){
 		_boards[ind] = {};
+		_boards[ind].winCondition = 3;
 	}
 
 	_boards[ind].board = [];
@@ -84,7 +89,7 @@ function placeMark(mark, pos, ind){
 		_toggleMark(ind);
 	}
 
-	var result = GameLogic.isOver(board);
+	var result = GameLogic.isOver(board, _boards[ind].winCondition);
 	if (result) {
 		_boards[ind].state = result;
 	}

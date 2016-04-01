@@ -27,6 +27,14 @@ var BoardActions = {
 			size: size,
 			ind: id
 		})
+	},
+
+	updateWinCondition: function(id, cond){
+		AppDispatcher.dispatch({
+			actionType: BoardConstants.UPDATE_WIN_CONDITION,
+			ind: id,
+			cond: cond
+		})
 	}
 };
 
