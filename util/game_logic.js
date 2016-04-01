@@ -4,9 +4,13 @@ var GameLogic = {
 	seenSeqs: {},
 	
 	posSeqs: function(size){
-		
 		//memoize previously seen sizes
 		if (this.seenSeqs[size]) {return this.seenSeqs[size]}
+
+		return this.generatePossibleSequences(size);
+	},
+
+	generatePossibleSequences: function(size){
 		var seqs = [];
 
 		//generate horizontals and verticals
