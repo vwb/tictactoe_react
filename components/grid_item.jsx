@@ -9,9 +9,9 @@ var GridItem = React.createClass({
 
 	handleSource: function(){
 		if (this.props.val && this.props.val === "x"){
-			return (<i className="fade-in fa fa-times"></i>)
+			return (<i className="fade-in fade-fast fa fa-times"></i>)
 		} else if (this.props.val && this.props.val === "o") {
-			return (<i className="fade-in fa fa-circle-o" ></i>)
+			return (<i className="fade-in fade-fast fa fa-circle-o" ></i>)
 		} else {
 			return (<i className="fa fa-circle-o" style={{color: 'transparent'}}></i>)
 		}

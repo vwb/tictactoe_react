@@ -57,3 +57,9 @@ html, body, div {
   -moz-animation-duration:0.25s;
   animation-duration:0.25s;
 }
+
+.fade-fast {
+	-webkit-animation-duration:0.15s;
+  -moz-animation-duration:0.15s;
+  animation-duration:0.15s;
+}
