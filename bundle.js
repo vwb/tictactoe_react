@@ -20179,6 +20179,7 @@
 	
 	function setWinCondition(id, amount) {
 		_boards[id].winCondition = amount;
+		checkWin(id);
 	}
 	
 	function resetGame(ind) {
@@ -20213,11 +20214,15 @@
 			_toggleMark(ind);
 		}
 	
-		var result = GameLogic.isOver(board, _boards[ind].winCondition);
-		if (result) {
-			_boards[ind].state = result;
-		}
+		checkWin(ind);
 	};
+	
+	function checkWin(ind) {
+		var result = GameLogic.isOver(_boards[ind].board, _boards[ind].winCondition);
+		if (result) {
+			return _boards[ind].state = result;
+		}
+	}
 	
 	function _toggleMark(ind) {
 		var board = _boards[ind];
@@ -27079,7 +27084,7 @@
 			if (this.props.type === "condition" && this.props.condition > 1) {
 				this.commitChange(this.props.condition - 1, "cond");
 			} else if (this.props.type === "size") {
-				if (this.props.size === this.props.condition) {
+				if (this.props.size === this.props.condition && this.props.condition > 1) {
 					this.commitChange(this.props.condition - 1, "cond");
 				}
 				this.commitChange(this.props.size - 1, "size");

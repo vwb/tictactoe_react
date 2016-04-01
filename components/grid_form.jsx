@@ -30,7 +30,7 @@ var GridForm = React.createClass({
 			this.commitChange(this.props.condition-1, "cond");
 
 		} else if (this.props.type === "size") {
-			if (this.props.size === this.props.condition){
+			if (this.props.size === this.props.condition && this.props.condition > 1){
 				this.commitChange(this.props.condition-1, "cond");
 			}
 			this.commitChange(this.props.size-1, "size");
