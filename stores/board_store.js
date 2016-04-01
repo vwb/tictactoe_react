@@ -27,6 +27,7 @@ BoardStore.fetchWinCondition = function(id){
 	if (_boards[id])  {  return _boards[id].winCondition  }
 };
 
+
 BoardStore.__onDispatch = function(payload){
 	switch (payload.actionType){
 		case BoardConstants.NEW_GAME:
@@ -56,7 +57,6 @@ function resetGrid(id, size){
 function setWinCondition(id, amount){
 	_boards[id].winCondition = amount
 	checkWin(id);
-
 }
 
 function resetGame(ind){
