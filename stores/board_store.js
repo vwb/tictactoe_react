@@ -55,6 +55,8 @@ function resetGrid(id, size){
 
 function setWinCondition(id, amount){
 	_boards[id].winCondition = amount
+	checkWin(id);
+
 }
 
 function resetGame(ind){
@@ -89,12 +91,16 @@ function placeMark(mark, pos, ind){
 		_toggleMark(ind);
 	}
 
-	var result = GameLogic.isOver(board, _boards[ind].winCondition);
-	if (result) {
-		_boards[ind].state = result;
-	}
+	checkWin(ind);
 
 };
+
+function checkWin(ind){
+	var result = GameLogic.isOver(_boards[ind].board, _boards[ind].winCondition);
+	if (result) {
+		return _boards[ind].state = result;
+	}
+}
 
 function _toggleMark(ind){
 	var board = _boards[ind]
