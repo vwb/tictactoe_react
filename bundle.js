@@ -19982,6 +19982,7 @@
 			for (var i = 0; i < size; i++) {
 				var horizontalArray = [];
 				var verticalArray = [];
+	
 				for (var j = 0; j < size; j++) {
 					horizontalArray.push([i, j]);
 					verticalArray.push([j, i]);
@@ -19994,8 +19995,10 @@
 			for (var j = 0; j < size; j++) {
 				var diagLeftTop = [];
 				var diagLeftBottom = [];
+	
 				var diagRightTop = [];
 				var diagRightBottom = [];
+	
 				for (var i = 0; i <= j; i++) {
 					diagLeftTop.push([i, j - i]);
 					diagLeftBottom.push([size - 1 - i, size - 1 - j + i]);
