@@ -13,7 +13,7 @@ var GridItem = React.createClass({
 		} else if (this.props.val && this.props.val === "o") {
 			return (<i className="grow grow-fast fa fa-circle-o"></i>)
 		} else {
-			return (<i className="fa fa-circle-o" style={{color: 'white'}}></i>)
+			return (<i className="fa fa-circle-o" style={{color: 'transparent'}}></i>)
 		}
 	},
 

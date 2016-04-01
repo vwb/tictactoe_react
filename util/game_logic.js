@@ -57,6 +57,7 @@ var GameLogic = {
 				diag.push([k+i,i])
 			}
 			k++
+			seqs.push(diag);
 		}
 
 		this.seenSeqs[size] = seqs;

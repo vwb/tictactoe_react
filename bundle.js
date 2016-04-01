@@ -54,11 +54,15 @@
 	  render: function () {
 	    return React.createElement(
 	      'div',
-	      { className: 'wrapper' },
+	      null,
 	      React.createElement(
-	        'h1',
-	        { className: 'center' },
-	        ' Tic Tac Toe '
+	        'div',
+	        { className: 'center header' },
+	        React.createElement(
+	          'h1',
+	          null,
+	          ' Tic Tac Toe '
+	        )
 	      ),
 	      React.createElement(GameView, null)
 	    );
@@ -19918,7 +19922,7 @@
 			} else if (this.props.val && this.props.val === "o") {
 				return React.createElement('i', { className: 'grow grow-fast fa fa-circle-o' });
 			} else {
-				return React.createElement('i', { className: 'fa fa-circle-o', style: { color: 'white' } });
+				return React.createElement('i', { className: 'fa fa-circle-o', style: { color: 'transparent' } });
 			}
 		},
 	
@@ -20001,6 +20005,7 @@
 					diag.push([k + i, i]);
 				}
 				k++;
+				seqs.push(diag);
 			}
 	
 			this.seenSeqs[size] = seqs;
@@ -27027,7 +27032,9 @@
 		},
 	
 		handleClickDown: function () {
-			this.commitChange(this.state.numGrids - 1);
+			if (this.state.numGrids > 3) {
+				this.commitChange(this.state.numGrids - 1);
+			}
 		},
 	
 		render: function () {

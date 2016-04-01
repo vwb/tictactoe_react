@@ -18,10 +18,13 @@ var GridForm = React.createClass({
 
 	handleClickUp: function(){
 		this.commitChange(this.state.numGrids+1);
+
 	},
 
 	handleClickDown: function(){
-		this.commitChange(this.state.numGrids-1)
+		if (this.state.numGrids > 3){
+			this.commitChange(this.state.numGrids-1)
+		}
 	},
 
 	render: function() {

@@ -2,7 +2,7 @@
 	position: relative;
 	margin: 0 auto;
 	padding: 0;
-	width: 50%;
+	width: 55%;
 }
 
 .board-container{
@@ -27,7 +27,7 @@
 	padding: 0;
 	display: inline-block;
 	float: left;
-	border: 0.45vw solid #0B0B0B;
+	border: 0.3vw solid #0B0B0B;
 }
 
 .img-wrapper {
