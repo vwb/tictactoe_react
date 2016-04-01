@@ -17,6 +17,7 @@ var GameLogic = {
 		for (var i = 0; i < size; i++) {
 			var horizontalArray = [];
 			var verticalArray = [];
+			
 			for (var j = 0; j < size; j++){
 				horizontalArray.push([i,j])
 				verticalArray.push([j,i])
@@ -29,8 +30,10 @@ var GameLogic = {
 		for (var j = 0; j < size; j++){
 			var diagLeftTop = [];
 			var diagLeftBottom = [];
+
 			var diagRightTop = [];
 			var diagRightBottom = [];
+
 			for (var i = 0; i <= j; i++){
 				diagLeftTop.push([i, j-i])
 				diagLeftBottom.push([size-1-i, size-1-j+i])
@@ -97,20 +100,20 @@ var GameLogic = {
 	checkWin: function(seq, board, condition){
 
 		for (var markIdx = 0; markIdx < this.marks.length; markIdx++){
-			var mark = this.marks[markIdx]
+			var mark = this.marks[markIdx];
 			var winner = true;
 			var contiguous = 0;
 			var result = [];
 
 			for (var posIdx = 0; posIdx < seq.length; posIdx++){
-				var pos = seq[posIdx]
+				var pos = seq[posIdx];
 
 				if (board[pos[0]][pos[1]] !== mark) {
-					result = []
-					contiguous = 0
+					result = [];
+					contiguous = 0;
 				} else {
-					result.push(pos)
-					contiguous++
+					result.push(pos);
+					contiguous++;
 				}
 
 				if (contiguous === condition){
@@ -118,8 +121,8 @@ var GameLogic = {
 				}
 			}
 		}
-		return null
+		return null;
 	},
 };
 
-module.exports = GameLogic
+module.exports = GameLogic;
