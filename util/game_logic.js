@@ -21,46 +21,24 @@ var GameLogic = {
 			seqs.push(verticalArray);
 		}
 
-		//generate initial diagonals going left to right
-		for (var j = 3; j <= size; j++){
-			var diag = []
-			for (var i = 0; i < j; i++) {
-				diag.push([i, (j-1-i)])
-			}
-			seqs.push(diag);
-		}
+		//generate diagonals 
+		for (var j = 0; j < size; j++){
+			var diagLeftTop = [];
+			var diagLeftBottom = [];
+			var diagRightTop = [];
+			var diagRightBottom = [];
+			for (var i = 0; i <= j; i++){
+				diagLeftTop.push([i, j-i])
+				diagLeftBottom.push([size-1-i, size-1-j+i])
 
-		//generate remaining diagonals going left to right
-		var k = 0;
-		for (var j = size; j > 3; j--){
-			var diag = []
-			for (var i = 1; i < j; i++) {
-				diag.push([i+k, size-i])
+				diagRightTop.push([j-i, size-1-i])
+				diagRightBottom.push([size-1-i, j-i])
 			}
-			k++;
-			seqs.push(diag);
-		}
-
-		//generate initial diaganols going right to left
-		for (var j = 0; j < (size-2); j++){
-			var diag = [];
-			for (var i = 0; i < (size-j) ; i ++){
-				diag.push([i, j+i]);
-			}
-			seqs.push(diag);
-		}
-
-
-		//generate remaining diagonal going right to left
-		k = 1
-		for (var j = size; j > 3; j--){
-			var diag = [];
-			for (var i = 0; i < j-1; i++){
-				diag.push([k+i,i])
-			}
-			k++
-			seqs.push(diag);
-		}
+			seqs.push(diagLeftTop);
+			seqs.push(diagLeftBottom);
+			seqs.push(diagRightTop);
+			seqs.push(diagRightBottom);
+		};
 
 		this.seenSeqs[size] = seqs;
 		return seqs;
@@ -107,12 +85,12 @@ var GameLogic = {
 		var seqs = this.posSeqs(board.length);
 
 		for (var i = 0; i < seqs.length; i++){
-			var winner = this._helper(seqs[i], board, condition)
+			var winner = this.checkWin(seqs[i], board, condition)
 			if (winner) {return winner}
 		}
 	},
 
-	_helper: function(seq, board, condition){
+	checkWin: function(seq, board, condition){
 
 		for (var markIdx = 0; markIdx < this.marks.length; markIdx++){
 			var mark = this.marks[markIdx]

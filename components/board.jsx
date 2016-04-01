@@ -150,6 +150,7 @@ var Board = React.createClass({
 				<div className="board group">
 					<span className="board-helper"/>
 					{this.generateGridItems()}
+
 				</div>
 				{this.handleGameEnd()}
 			</div>
