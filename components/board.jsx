@@ -148,7 +148,9 @@ var Board = React.createClass({
 
 
 				<div className="board group">
+					<div>
 					<span className="board-helper"/>
+					</div>
 					{this.generateGridItems()}
 
 				</div>

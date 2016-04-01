@@ -19907,7 +19907,11 @@
 				React.createElement(
 					'div',
 					{ className: 'board group' },
-					React.createElement('span', { className: 'board-helper' }),
+					React.createElement(
+						'div',
+						null,
+						React.createElement('span', { className: 'board-helper' })
+					),
 					this.generateGridItems()
 				),
 				this.handleGameEnd()
