@@ -12,10 +12,18 @@ It can be viewed and played at: vwb.github.io/tictactoe_react
 
 #### Step Two: Install required packages
 * CD to the cloned directory
-* Run `npm install --yes`
+* Run `npm install`
 
 #### Step Three: Run on Local Machine
 * CD to cloned directory
 * Run `open index.html`
 
 ## Success!
+
+## Features
+
+* Single page React App utilizing aspects of Flux architecture
+* Supports NxN grid with dynamic (1..N) win condition
+* Multiple independent games
+* Efficient bundling / dependancy management via webpack
+* Responsive design
