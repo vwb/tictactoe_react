@@ -19938,9 +19938,9 @@
 	
 		handleSource: function () {
 			if (this.props.val && this.props.val === "x") {
-				return React.createElement('i', { className: 'fade-in fa fa-times' });
+				return React.createElement('i', { className: 'fade-in fade-fast fa fa-times' });
 			} else if (this.props.val && this.props.val === "o") {
-				return React.createElement('i', { className: 'fade-in fa fa-circle-o' });
+				return React.createElement('i', { className: 'fade-in fade-fast fa fa-circle-o' });
 			} else {
 				return React.createElement('i', { className: 'fa fa-circle-o', style: { color: 'transparent' } });
 			}
