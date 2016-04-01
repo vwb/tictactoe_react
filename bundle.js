@@ -19744,6 +19744,7 @@
 	var BoardStore = __webpack_require__(163);
 	var BoardActions = __webpack_require__(186);
 	var GameLogic = __webpack_require__(162);
+	var GridForm = __webpack_require__(187);
 	
 	var Board = React.createClass({
 		displayName: 'Board',
@@ -19753,7 +19754,8 @@
 			return {
 				board: BoardStore.fetchBoard(this.props.ind),
 				currentMark: BoardStore.fetchMark(this.props.ind),
-				gameState: BoardStore.fetchGameState(this.props.ind)
+				gameState: BoardStore.fetchGameState(this.props.ind),
+				gridSize: BoardStore.fetchGridSize(this.props.ind)
 			};
 		},
 	
@@ -19770,7 +19772,8 @@
 			this.setState({
 				board: BoardStore.fetchBoard(this.props.ind),
 				currentMark: BoardStore.fetchMark(this.props.ind),
-				gameState: BoardStore.fetchGameState(this.props.ind)
+				gameState: BoardStore.fetchGameState(this.props.ind),
+				gridSize: BoardStore.fetchGridSize(this.props.ind)
 			});
 		},
 	
@@ -19789,7 +19792,6 @@
 					cName += " loser";
 				}
 			}
-	
 			return cName;
 		},
 	
@@ -19807,8 +19809,14 @@
 	
 			items = [];
 			var key = 0;
-			for (var i = 0; i < 3; i++) {
-				for (var j = 0; j < 3; j++) {
+	
+			var style = {
+				width: 100 / this.state.gridSize + "%",
+				fontSize: 1 / this.state.gridSize * 50 * 0.6 + "vw"
+			};
+	
+			for (var i = 0; i < this.state.gridSize; i++) {
+				for (var j = 0; j < this.state.gridSize; j++) {
 	
 					if (this.state.board) {
 						var val = this.state.board[i][j];
@@ -19821,7 +19829,8 @@
 						pos: [i, j],
 						gridClick: this.gridClick,
 						val: val,
-						cName: cName }));
+						cName: cName,
+						style: style }));
 	
 					key++;
 				}
@@ -19872,6 +19881,11 @@
 				{ className: 'board-container' },
 				React.createElement(
 					'div',
+					{ className: 'form-wrapper' },
+					React.createElement(GridForm, { id: this.props.ind, size: this.state.gridSize })
+				),
+				React.createElement(
+					'div',
 					{ className: 'board group' },
 					React.createElement('span', { className: 'board-helper' }),
 					this.generateGridItems()
@@ -19911,10 +19925,10 @@
 		render: function () {
 			return React.createElement(
 				'div',
-				{ className: this.props.cName, onClick: this.handleClick },
+				{ className: this.props.cName, style: this.props.style, onClick: this.handleClick },
 				React.createElement(
 					'div',
-					{ className: 'img-wrapper center grow' },
+					{ className: 'img-wrapper center' },
 					this.handleSource()
 				)
 			);
@@ -19930,13 +19944,68 @@
 	var GameLogic = {
 	
 		marks: ["x", "o"],
-		posSeqs: [
-		// horizontals
-		[[0, 0], [0, 1], [0, 2]], [[1, 0], [1, 1], [1, 2]], [[2, 0], [2, 1], [2, 2]],
-		// verticals
-		[[0, 0], [1, 0], [2, 0]], [[0, 1], [1, 1], [2, 1]], [[0, 2], [1, 2], [2, 2]],
-		// diagonals
-		[[0, 0], [1, 1], [2, 2]], [[2, 0], [1, 1], [0, 2]]],
+		seenSeqs: {},
+	
+		posSeqs: function (size) {
+			if (this.seenSeqs[size]) {
+				return this.seenSeqs[size];
+			}
+			var seqs = [];
+	
+			//generate horizontals and verticals
+			for (var i = 0; i < size; i++) {
+				var horizontalArray = [];
+				var verticalArray = [];
+				for (var j = 0; j < size; j++) {
+					horizontalArray.push([i, j]);
+					verticalArray.push([j, i]);
+				}
+				seqs.push(horizontalArray);
+				seqs.push(verticalArray);
+			}
+	
+			//generate initial diagonals going left to right
+			for (var j = 3; j <= size; j++) {
+				var diag = [];
+				for (var i = 0; i < j; i++) {
+					diag.push([i, j - 1 - i]);
+				}
+				seqs.push(diag);
+			}
+	
+			//generate remaining diagonals going left to right
+			var k = 0;
+			for (var j = size; j > 3; j--) {
+				var diag = [];
+				for (var i = 1; i < j; i++) {
+					diag.push([i + k, size - i]);
+				}
+				k++;
+				seqs.push(diag);
+			}
+	
+			//generate initial diaganols going right to left
+			for (var j = 0; j < size - 2; j++) {
+				var diag = [];
+				for (var i = 0; i < size - j; i++) {
+					diag.push([i, j + i]);
+				}
+				seqs.push(diag);
+			}
+	
+			//generate remaining diagonal going right to left
+			k = 1;
+			for (var j = size; j > 3; j--) {
+				var diag = [];
+				for (var i = 0; i < j - 1; i++) {
+					diag.push([k + i, i]);
+				}
+				k++;
+			}
+	
+			this.seenSeqs[size] = seqs;
+			return seqs;
+		},
 	
 		isOver: function (board) {
 	
@@ -19952,8 +20021,8 @@
 			}
 		},
 	
-		isValidPos: function (pos) {
-			return 0 <= pos[0] && 2 >= pos[0] && 0 <= pos[1] && 2 >= pos[1];
+		isValidPos: function (pos, board) {
+			return 0 <= pos[0] && board.length >= pos[0] && 0 <= pos[1] && board.length >= pos[1];
 		},
 	
 		emptyPos: function (pos, board) {
@@ -19976,10 +20045,12 @@
 		},
 	
 		gameWon: function (board) {
-			for (var i = 0; i < this.posSeqs.length; i++) {
-				var winner = this._helper(this.posSeqs[i], board);
+			var seqs = this.posSeqs(board.length);
+	
+			for (var i = 0; i < seqs.length; i++) {
+				var winner = this._helper(seqs[i], board);
 				if (winner) {
-					return { winningMark: winner, seq: this.posSeqs[i] };
+					return winner;
 				}
 			}
 		},
@@ -19989,14 +20060,24 @@
 			for (var markIdx = 0; markIdx < this.marks.length; markIdx++) {
 				var mark = this.marks[markIdx];
 				var winner = true;
+				var threeContiguous = 0;
+				var result = [];
+	
 				for (var posIdx = 0; posIdx < seq.length; posIdx++) {
 					var pos = seq[posIdx];
+	
 					if (board[pos[0]][pos[1]] !== mark) {
-						winner = false;
+						result = [];
+						threeContiguous = 0;
+					} else {
+						result.push(pos);
+						threeContiguous++;
 					}
-				}
-				if (winner) {
-					return mark;
+	
+					if (threeContiguous === 3) {
+						console.log(result);
+						return { winningMark: mark, seq: result };
+					}
 				}
 			}
 			return null;
@@ -20036,6 +20117,12 @@
 		}
 	};
 	
+	BoardStore.fetchGridSize = function (id) {
+		if (_boards[id]) {
+			return _boards[id].size;
+		}
+	};
+	
 	BoardStore.__onDispatch = function (payload) {
 		switch (payload.actionType) {
 			case BoardConstants.NEW_GAME:
@@ -20046,20 +20133,36 @@
 				placeMark(payload.mark, payload.pos, payload.ind);
 				BoardStore.__emitChange();
 				break;
+			case BoardConstants.UPDATE_GRID:
+				resetGrid(payload.ind, payload.size);
+				BoardStore.__emitChange();
+				break;
 		}
 	};
 	
+	function resetGrid(id, size) {
+		_boards[id].size = size;
+		resetGame(id);
+	}
+	
 	function resetGame(ind) {
-		_boards[ind] = {};
+		if (!_boards[ind]) {
+			_boards[ind] = {};
+		}
+	
 		_boards[ind].board = [];
 		_boards[ind].mark = "x";
 		_boards[ind].state = false;
 	
+		if (!_boards[ind].size) {
+			_boards[ind].size = 3;
+		}
+	
 		var board = _boards[ind].board;
 	
-		for (var i = 0; i < 3; i++) {
+		for (var i = 0; i < _boards[ind].size; i++) {
 			board.push([]);
-			for (var j = 0; j < 3; j++) {
+			for (var j = 0; j < _boards[ind].size; j++) {
 				board[i].push(null);
 			}
 		}
@@ -20068,9 +20171,9 @@
 	function placeMark(mark, pos, ind) {
 		var board = _boards[ind].board;
 	
-		if (GameLogic.isValidPos(pos) && GameLogic.emptyPos(pos, board)) {
+		if (GameLogic.isValidPos(pos, board) && GameLogic.emptyPos(pos, board)) {
 			board[pos[0]][pos[1]] = mark;
-			toggleMark(ind);
+			_toggleMark(ind);
 		}
 	
 		var result = GameLogic.isOver(board);
@@ -20079,7 +20182,7 @@
 		}
 	};
 	
-	function toggleMark(ind) {
+	function _toggleMark(ind) {
 		var board = _boards[ind];
 		board.mark = board.mark === "x" ? "o" : "x";
 	};
@@ -26853,7 +26956,8 @@
 
 	module.exports = {
 		NEW_GAME: "NEW_GAME",
-		PLACE_MARK: "PLACE_MARK"
+		PLACE_MARK: "PLACE_MARK",
+		UPDATE_GRID: "UPDATE_GRID"
 	};
 
 /***/ },
@@ -26881,10 +26985,67 @@
 				ind: ind
 	
 			});
+		},
+	
+		updateGridCount: function (id, size) {
+			AppDispatcher.dispatch({
+				actionType: BoardConstants.UPDATE_GRID,
+				size: size,
+				ind: id
+			});
 		}
 	};
 	
 	module.exports = BoardActions;
+
+/***/ },
+/* 187 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var React = __webpack_require__(1);
+	var BoardActions = __webpack_require__(186);
+	
+	var GridForm = React.createClass({
+		displayName: 'GridForm',
+	
+		getInitialState: function () {
+			return {
+				numGrids: this.props.size
+			};
+		},
+	
+		componentWillReceiveProps: function (newProps) {
+			this.setState({ numGrids: newProps.size });
+		},
+	
+		commitChange: function (val) {
+			BoardActions.updateGridCount(this.props.id, val);
+		},
+	
+		handleClickUp: function () {
+			this.commitChange(this.state.numGrids + 1);
+		},
+	
+		handleClickDown: function () {
+			this.commitChange(this.state.numGrids - 1);
+		},
+	
+		render: function () {
+			return React.createElement(
+				'div',
+				null,
+				React.createElement('i', { className: 'fa fa-caret-up arrow up', onClick: this.handleClickUp }),
+				React.createElement(
+					'div',
+					{ className: 'value' },
+					this.props.size + " x " + this.props.size
+				),
+				React.createElement('i', { className: 'fa fa-caret-down arrow down', onClick: this.handleClickDown })
+			);
+		}
+	});
+	
+	module.exports = GridForm;
 
 /***/ }
 /******/ ]);

@@ -19,8 +19,8 @@ var GridItem = React.createClass({
 
 	render: function() {
 		return (
-			<div className={this.props.cName} onClick={this.handleClick}> 
-				<div className="img-wrapper center grow">
+			<div className={this.props.cName} style={this.props.style} onClick={this.handleClick}> 
+				<div className="img-wrapper center">
 					{this.handleSource()}
 				</div>
 

@@ -3,6 +3,7 @@ var GridItem = require('./grid_item');
 var BoardStore = require('../stores/board_store');
 var BoardActions = require('../actions/board_actions');
 var GameLogic = require('../util/game_logic');
+var GridForm = require('./grid_form');
 
 var Board = React.createClass({
 
@@ -10,7 +11,8 @@ var Board = React.createClass({
 		return {
 			board: BoardStore.fetchBoard(this.props.ind),
 			currentMark: BoardStore.fetchMark(this.props.ind),
-			gameState: BoardStore.fetchGameState(this.props.ind)
+			gameState: BoardStore.fetchGameState(this.props.ind),
+			gridSize: BoardStore.fetchGridSize(this.props.ind)
 		}
 	},
 
@@ -27,7 +29,8 @@ var Board = React.createClass({
 		this.setState({
 			board: BoardStore.fetchBoard(this.props.ind),
 			currentMark: BoardStore.fetchMark(this.props.ind),
-			gameState: BoardStore.fetchGameState(this.props.ind)
+			gameState: BoardStore.fetchGameState(this.props.ind),
+			gridSize: BoardStore.fetchGridSize(this.props.ind)
 		})
 	},
 
@@ -46,7 +49,6 @@ var Board = React.createClass({
 				cName += " loser"
 			}
 		} 
-
 		return cName;
 	},
 
@@ -64,8 +66,14 @@ var Board = React.createClass({
 
 		items = []		
 		var key = 0
-		for (var i = 0; i < 3; i++){
-			for (var j = 0; j < 3; j++){
+
+		var style = {
+			width: (100 / this.state.gridSize) + "%",
+			fontSize: (((1/this.state.gridSize)*50) * 0.6) + "vw"
+		};
+
+		for (var i = 0; i < this.state.gridSize; i++){
+			for (var j = 0; j < this.state.gridSize; j++){
 
 				if (this.state.board){
 					var val = this.state.board[i][j];
@@ -78,7 +86,8 @@ var Board = React.createClass({
 											pos={[i,j]} 
 											gridClick={this.gridClick} 
 											val={val}
-											cName={cName}/>)
+											cName={cName}
+											style={style}/>)
 
 				key++;
 
@@ -117,6 +126,11 @@ var Board = React.createClass({
 	render: function() {
 		return (
 			<div className="board-container">
+
+				<div className="form-wrapper">
+					<GridForm id={this.props.ind} size={this.state.gridSize}/>
+				</div>
+
 				<div className="board group">
 					<span className="board-helper"/>
 					{this.generateGridItems()}

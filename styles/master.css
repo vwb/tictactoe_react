@@ -1,6 +1,7 @@
 @import url("board.css");
 @import url("game_view.css");
 @import url("button_styles.css");
+@import url("form.css");
 
 /* STYLE RESET */
 
@@ -34,9 +35,9 @@ html, body, div {
 }
 
 /* make keyframes that tell the start state and the end state of our object */
-@-webkit-keyframes grow { from { font-size:0; } to { font-size:10vw; } }
-@-moz-keyframes grow { from { font-size:0; } to { font-size:10vw; } }
-@keyframes grow { from { font-size:0; } to { font-size:10vw; } }
+@-webkit-keyframes grow { from { font-size:0; } to { font-size:100%; } }
+@-moz-keyframes grow { from { font-size:0; } to { font-size:100%; } }
+@keyframes grow { from { font-size:0; } to { font-size:100%; } }
 
 .grow {
   font-size:0;  /* make things invisible upon start */
