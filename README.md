@@ -1,4 +1,4 @@
-#Tic Tac Toe
+#[Tic Tac Toe](vwb.github.io/tictactoe_react)
 
 A basic React implementation with a flavor of Flux architecture to model a dynamic NxN tic tac toe board.
 
