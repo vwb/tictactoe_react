@@ -12,7 +12,8 @@ var Board = React.createClass({
 			board: BoardStore.fetchBoard(this.props.ind),
 			currentMark: BoardStore.fetchMark(this.props.ind),
 			gameState: BoardStore.fetchGameState(this.props.ind),
-			gridSize: BoardStore.fetchGridSize(this.props.ind)
+			gridSize: BoardStore.fetchGridSize(this.props.ind),
+			winCondition: BoardStore.fetchWinCondition(this.props.ind)
 		}
 	},
 
@@ -30,7 +31,8 @@ var Board = React.createClass({
 			board: BoardStore.fetchBoard(this.props.ind),
 			currentMark: BoardStore.fetchMark(this.props.ind),
 			gameState: BoardStore.fetchGameState(this.props.ind),
-			gridSize: BoardStore.fetchGridSize(this.props.ind)
+			gridSize: BoardStore.fetchGridSize(this.props.ind),
+			winCondition: BoardStore.fetchWinCondition(this.props.ind)
 		})
 	},
 
@@ -124,12 +126,26 @@ var Board = React.createClass({
 	},
 
 	render: function() {
+
 		return (
 			<div className="board-container">
 
-				<div className="form-wrapper">
-					<GridForm id={this.props.ind} size={this.state.gridSize}/>
+				<div className="form-wrapper grid-size">
+					<GridForm 
+						id={this.props.ind} 
+						size={this.state.gridSize}
+						condition={this.state.winCondition}
+						type="size"/>
 				</div>
+
+				<div className="form-wrapper win-condition">
+					<GridForm 
+						id={this.props.ind}
+						condition={this.state.winCondition}
+						size={this.state.gridSize}
+						type="condition"/>
+				</div>
+
 
 				<div className="board group">
 					<span className="board-helper"/>

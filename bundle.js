@@ -19759,7 +19759,8 @@
 				board: BoardStore.fetchBoard(this.props.ind),
 				currentMark: BoardStore.fetchMark(this.props.ind),
 				gameState: BoardStore.fetchGameState(this.props.ind),
-				gridSize: BoardStore.fetchGridSize(this.props.ind)
+				gridSize: BoardStore.fetchGridSize(this.props.ind),
+				winCondition: BoardStore.fetchWinCondition(this.props.ind)
 			};
 		},
 	
@@ -19777,7 +19778,8 @@
 				board: BoardStore.fetchBoard(this.props.ind),
 				currentMark: BoardStore.fetchMark(this.props.ind),
 				gameState: BoardStore.fetchGameState(this.props.ind),
-				gridSize: BoardStore.fetchGridSize(this.props.ind)
+				gridSize: BoardStore.fetchGridSize(this.props.ind),
+				winCondition: BoardStore.fetchWinCondition(this.props.ind)
 			});
 		},
 	
@@ -19880,13 +19882,27 @@
 		},
 	
 		render: function () {
+	
 			return React.createElement(
 				'div',
 				{ className: 'board-container' },
 				React.createElement(
 					'div',
-					{ className: 'form-wrapper' },
-					React.createElement(GridForm, { id: this.props.ind, size: this.state.gridSize })
+					{ className: 'form-wrapper grid-size' },
+					React.createElement(GridForm, {
+						id: this.props.ind,
+						size: this.state.gridSize,
+						condition: this.state.winCondition,
+						type: 'size' })
+				),
+				React.createElement(
+					'div',
+					{ className: 'form-wrapper win-condition' },
+					React.createElement(GridForm, {
+						id: this.props.ind,
+						condition: this.state.winCondition,
+						size: this.state.gridSize,
+						type: 'condition' })
 				),
 				React.createElement(
 					'div',
@@ -19951,6 +19967,8 @@
 		seenSeqs: {},
 	
 		posSeqs: function (size) {
+	
+			//memoize previously seen sizes
 			if (this.seenSeqs[size]) {
 				return this.seenSeqs[size];
 			}
@@ -20012,9 +20030,9 @@
 			return seqs;
 		},
 	
-		isOver: function (board) {
+		isOver: function (board, condition) {
 	
-			var winner = this.gameWon(board);
+			var winner = this.gameWon(board, condition);
 			if (winner) {
 				return winner;
 			}
@@ -20049,23 +20067,23 @@
 			return false;
 		},
 	
-		gameWon: function (board) {
+		gameWon: function (board, condition) {
 			var seqs = this.posSeqs(board.length);
 	
 			for (var i = 0; i < seqs.length; i++) {
-				var winner = this._helper(seqs[i], board);
+				var winner = this._helper(seqs[i], board, condition);
 				if (winner) {
 					return winner;
 				}
 			}
 		},
 	
-		_helper: function (seq, board) {
+		_helper: function (seq, board, condition) {
 	
 			for (var markIdx = 0; markIdx < this.marks.length; markIdx++) {
 				var mark = this.marks[markIdx];
 				var winner = true;
-				var threeContiguous = 0;
+				var contiguous = 0;
 				var result = [];
 	
 				for (var posIdx = 0; posIdx < seq.length; posIdx++) {
@@ -20073,14 +20091,13 @@
 	
 					if (board[pos[0]][pos[1]] !== mark) {
 						result = [];
-						threeContiguous = 0;
+						contiguous = 0;
 					} else {
 						result.push(pos);
-						threeContiguous++;
+						contiguous++;
 					}
 	
-					if (threeContiguous === 3) {
-						console.log(result);
+					if (contiguous === condition) {
 						return { winningMark: mark, seq: result };
 					}
 				}
@@ -20128,6 +20145,12 @@
 		}
 	};
 	
+	BoardStore.fetchWinCondition = function (id) {
+		if (_boards[id]) {
+			return _boards[id].winCondition;
+		}
+	};
+	
 	BoardStore.__onDispatch = function (payload) {
 		switch (payload.actionType) {
 			case BoardConstants.NEW_GAME:
@@ -20142,17 +20165,26 @@
 				resetGrid(payload.ind, payload.size);
 				BoardStore.__emitChange();
 				break;
+			case BoardConstants.UPDATE_WIN_CONDITION:
+				setWinCondition(payload.ind, payload.cond);
+				BoardStore.__emitChange();
+				break;
 		}
 	};
 	
 	function resetGrid(id, size) {
 		_boards[id].size = size;
 		resetGame(id);
+	};
+	
+	function setWinCondition(id, amount) {
+		_boards[id].winCondition = amount;
 	}
 	
 	function resetGame(ind) {
 		if (!_boards[ind]) {
 			_boards[ind] = {};
+			_boards[ind].winCondition = 3;
 		}
 	
 		_boards[ind].board = [];
@@ -20181,7 +20213,7 @@
 			_toggleMark(ind);
 		}
 	
-		var result = GameLogic.isOver(board);
+		var result = GameLogic.isOver(board, _boards[ind].winCondition);
 		if (result) {
 			_boards[ind].state = result;
 		}
@@ -26962,7 +26994,8 @@
 	module.exports = {
 		NEW_GAME: "NEW_GAME",
 		PLACE_MARK: "PLACE_MARK",
-		UPDATE_GRID: "UPDATE_GRID"
+		UPDATE_GRID: "UPDATE_GRID",
+		UPDATE_WIN_CONDITION: "UPDATE_WIN_CONDITION"
 	};
 
 /***/ },
@@ -26998,6 +27031,14 @@
 				size: size,
 				ind: id
 			});
+		},
+	
+		updateWinCondition: function (id, cond) {
+			AppDispatcher.dispatch({
+				actionType: BoardConstants.UPDATE_WIN_CONDITION,
+				ind: id,
+				cond: cond
+			});
 		}
 	};
 	
@@ -27013,41 +27054,68 @@
 	var GridForm = React.createClass({
 		displayName: 'GridForm',
 	
-		getInitialState: function () {
-			return {
-				numGrids: this.props.size
-			};
-		},
 	
-		componentWillReceiveProps: function (newProps) {
-			this.setState({ numGrids: newProps.size });
-		},
+		commitChange: function (val, type) {
 	
-		commitChange: function (val) {
-			BoardActions.updateGridCount(this.props.id, val);
+			if (type === "size") {
+				BoardActions.updateGridCount(this.props.id, val);
+			} else if (type === "cond") {
+				BoardActions.updateWinCondition(this.props.id, val);
+			}
 		},
 	
 		handleClickUp: function () {
-			this.commitChange(this.state.numGrids + 1);
+			if (this.props.type === "condition") {
+	
+				if (this.props.condition < this.props.size) {
+					this.commitChange(this.props.condition + 1, "cond");
+				}
+			} else {
+				this.commitChange(this.props.size + 1, "size");
+			}
 		},
 	
 		handleClickDown: function () {
-			if (this.state.numGrids > 3) {
-				this.commitChange(this.state.numGrids - 1);
+			if (this.props.type === "condition" && this.props.condition > 1) {
+				this.commitChange(this.props.condition - 1, "cond");
+			} else if (this.props.type === "size") {
+				if (this.props.size === this.props.condition) {
+					this.commitChange(this.props.condition - 1, "cond");
+				}
+				this.commitChange(this.props.size - 1, "size");
+			}
+		},
+	
+		determineValue: function () {
+			if (this.props.type === "condition") {
+				return "Need " + this.props.condition + " in a row!";
+			} else if (this.props.type === "size") {
+				return this.props.size + " x " + this.props.size;
 			}
 		},
 	
 		render: function () {
+			var cNameDown;
+			var cNameUp;
+	
+			if (this.props.size === this.props.condition && this.props.type === "condition") {
+				cNameUp = "disabled";
+			}
+	
+			if (this.props.condition === 1 && this.props.type === "condition") {
+				cNameDown = "disabled";
+			}
+	
 			return React.createElement(
 				'div',
 				null,
-				React.createElement('i', { className: 'fa fa-caret-up arrow up', onClick: this.handleClickUp }),
+				React.createElement('i', { className: "fa fa-caret-up arrow up " + cNameUp, onClick: this.handleClickUp }),
 				React.createElement(
 					'div',
 					{ className: 'value' },
-					this.props.size + " x " + this.props.size
+					this.determineValue()
 				),
-				React.createElement('i', { className: 'fa fa-caret-down arrow down', onClick: this.handleClickDown })
+				React.createElement('i', { className: "fa fa-caret-down arrow down " + cNameDown, onClick: this.handleClickDown })
 			);
 		}
 	});

@@ -4,6 +4,8 @@ var GameLogic = {
 	seenSeqs: {},
 	
 	posSeqs: function(size){
+		
+		//memoize previously seen sizes
 		if (this.seenSeqs[size]) {return this.seenSeqs[size]}
 		var seqs = [];
 
@@ -64,9 +66,9 @@ var GameLogic = {
 		return seqs;
 	},
 
-	isOver: function(board){
+	isOver: function(board, condition){
 
-		var winner = this.gameWon(board);
+		var winner = this.gameWon(board, condition);
 		if (winner){
 			return winner;
 		}
@@ -101,21 +103,21 @@ var GameLogic = {
 		return false;
 	},
 
-	gameWon: function(board){
+	gameWon: function(board, condition){
 		var seqs = this.posSeqs(board.length);
 
 		for (var i = 0; i < seqs.length; i++){
-			var winner = this._helper(seqs[i], board)
+			var winner = this._helper(seqs[i], board, condition)
 			if (winner) {return winner}
 		}
 	},
 
-	_helper: function(seq, board){
+	_helper: function(seq, board, condition){
 
 		for (var markIdx = 0; markIdx < this.marks.length; markIdx++){
 			var mark = this.marks[markIdx]
 			var winner = true;
-			var threeContiguous = 0;
+			var contiguous = 0;
 			var result = [];
 
 			for (var posIdx = 0; posIdx < seq.length; posIdx++){
@@ -123,14 +125,13 @@ var GameLogic = {
 
 				if (board[pos[0]][pos[1]] !== mark) {
 					result = []
-					threeContiguous = 0
+					contiguous = 0
 				} else {
 					result.push(pos)
-					threeContiguous++
+					contiguous++
 				}
 
-				if (threeContiguous === 3){
-					console.log(result)
+				if (contiguous === condition){
 					return {winningMark: mark, seq: result}
 				}
 			}
