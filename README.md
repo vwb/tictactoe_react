@@ -12,7 +12,8 @@ It can be viewed and played at: vwb.github.io/tictactoe_react
 
 #### Step Two: Install required packages
 * CD to the cloned directory
-* Run `npm install`
+* If you have Node installed run `npm install`
+* If not, install [Node](https://docs.npmjs.com/getting-started/installing-node) and then run `npm install`
 
 #### Step Three: Run on Local Machine
 * CD to cloned directory
